@@ -1,0 +1,42 @@
+# Problem: Zero Array Transformation II - https://leetcode.com/problems/zero-array-transformation-ii/
+
+/**
+ * @param {number[]} nums
+ * @param {number[][]} queries
+ * @return {number}
+ */
+var minZeroArray = function(nums, queries) {
+    const n = nums.length;
+    let sum = 0;          // Tracks the running sum of decrements
+    let k = 0;            // Counts the number of queries processed
+    
+    // Initialize difference array for efficient range updates
+    let differenceArray = new Array(n + 1).fill(0);
+    
+    // Process each element in the nums array
+    for(let index = 0; index < n; index++) {
+        // Keep applying queries until the current element can be reduced to 0
+        while(sum + differenceArray[index] < nums[index]){
+            k++;  // Increment query counter
+            
+            // If we've used all queries and still can't zero the array, return -1
+            if(k > queries.length) return -1;
+            
+            // Extract the current query parameters
+            let [left, right, val] = queries[k - 1];
+            
+            // Only apply the query if it affects the current index or elements to its right
+            if(right >= index) {
+                // Update the difference array to apply the decrement
+                // We take max(left, index) because we only care about the current index and beyond
+                differenceArray[Math.max(left, index)] += val;
+                differenceArray[right + 1] -= val;  // Remove the effect after the range
+            }
+        }
+        
+        // Update the running sum with the current difference value
+        sum += differenceArray[index];
+    }
+    
+    return k;  // Return the minimum number of queries needed
+};
